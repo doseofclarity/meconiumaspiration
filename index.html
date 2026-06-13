@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Meconium Aspiration Syndrome (MAS) | At‑Risk Newborn | MCN Review</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .transition-all { transition: all 0.3s ease; }
+        .recall-mode .reveal-text {
+            background-color: #cbd5e1;
+            color: transparent;
+            border-radius: 0.375rem;
+            padding: 0 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            box-shadow: inset 0 0 0 1px #94a3b8;
+        }
+        .recall-mode .reveal-text:hover,
+        .recall-mode .reveal-text.revealed {
+            background-color: #c7d2fe;
+            color: #1e293b;
+            box-shadow: none;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 8px; }
+        .content-section { animation: fade 0.3s ease; }
+        @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .quiz-feedback-correct { background-color: #dcfce7; border-left: 4px solid #22c55e; }
+        .quiz-feedback-wrong { background-color: #fee2e2; border-left: 4px solid #ef4444; }
+        .locked-section { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
+        .flashcard { background: #fff; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer; border: 1px solid #e2e8f0; }
+        .flashcard:hover { transform: translateY(-5px); }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { mas: { light: '#e0e7ff', DEFAULT: '#4f46e5', dark: '#3730a3' } } } }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 h-screen flex flex-col md:flex-row font-sans text-slate-800 overflow-hidden">
+
+    <!-- Mobile Header -->
+    <div class="md:hidden bg-mas-dark text-white p-4 flex justify-between items-center shadow-md z-30 shrink-0">
+        <button onclick="toggleMobileMenu()" class="text-white focus:outline-none z-40">
+            <i class="fa-solid fa-bars text-2xl"></i>
+        </button>
+        <h1 class="font-bold text-lg absolute left-1/2 transform -translate-x-1/2 pointer-events-none">
+            <i class="fa-solid fa-lungs mr-2"></i> MAS
+        </h1>
+        <div class="w-8"></div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar" class="hidden md:flex flex-col w-full md:w-80 bg-white shadow-2xl h-full absolute md:relative z-30 transition-transform duration-300 shrink-0 border-r border-slate-200">
+        <div class="p-6 bg-gradient-to-br from-mas-dark to-mas text-white hidden md:block shrink-0">
+            <h1 class="font-black text-2xl tracking-wide"><i class="fa-regular fa-hand-peace mr-2"></i> Meconium Aspiration Syndrome</h1>
+            <p class="text-sm text-indigo-200 mt-1 font-medium">At‑Risk Newborn · MCN · Pillitteri</p>
+        </div>
+        <div class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1 text-sm font-medium">
+                <li><button onclick="showSection('home')" id="btn-home" class="nav-btn w-full text-left px-6 py-3 bg-mas-light text-mas-dark border-r-4 border-mas-dark transition-colors"><i class="fa-solid fa-house w-6 nav-icon"></i><i class="fa-solid fa-lock w-6 hidden"></i> Home / Start</button></li>
+                <li><button onclick="showSection('definition')" id="btn-definition" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-book-open w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Definition & Epidemiology</button></li>
+                <li><button onclick="showSection('pathophysiology')" id="btn-pathophysiology" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-notes-medical w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Pathophysiology & Risk Factors</button></li>
+                <li><button onclick="showSection('clinical')" id="btn-clinical" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-stethoscope w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Clinical Manifestations & Diagnosis</button></li>
+                <li><button onclick="showSection('management')" id="btn-management" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-capsules w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Management (Intrapartum & Neonatal)</button></li>
+                <li><button onclick="showSection('nursing')" id="btn-nursing" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-user-nurse w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Nursing Care & Complications</button></li>
+                <li><button onclick="showSection('longterm')" id="btn-longterm" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-children w-6 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Long‑Term Outcomes & Prevention</button></li>
+                <li><button onclick="showSection('flashcards')" id="btn-flashcards" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors border-t border-slate-200 mt-2 locked-section"><i class="fa-solid fa-cards w-6 text-mas nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Flashcards & Mnemonics</button></li>
+                <li><button onclick="showSection('final_quiz_sec')" id="btn-final_quiz_sec" class="nav-btn w-full text-left px-6 py-3 text-slate-700 hover:bg-slate-50 transition-colors locked-section"><i class="fa-solid fa-graduation-cap w-6 text-amber-500 nav-icon hidden"></i><i class="fa-solid fa-lock w-6 text-slate-400"></i> Final 50‑Item Exam</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="flex-1 h-full overflow-y-auto bg-slate-100 relative w-full">
+        <div class="fixed top-16 md:top-4 right-4 md:right-8 z-40 flex items-center bg-white/90 backdrop-blur px-4 py-3 rounded-full shadow-lg border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors" onclick="toggleRecallMode()">
+            <span class="mr-3 text-sm font-bold text-slate-700 hidden md:inline"><i class="fa-solid fa-brain text-mas mr-1"></i> Active Recall</span>
+            <button id="recall-toggle" class="w-12 h-6 bg-slate-300 rounded-full relative transition-colors duration-300 focus:outline-none shadow-inner pointer-events-none">
+                <div id="recall-knob" class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-300 shadow"></div>
+            </button>
+        </div>
+
+        <div class="p-4 md:p-8 max-w-6xl mx-auto pb-32">
+            <!-- HOME SECTION -->
+            <section id="home" class="content-section flex flex-col items-center justify-center min-h-[80vh] text-center block">
+                <div class="bg-gradient-to-br from-slate-800 to-mas-dark text-white rounded-3xl shadow-2xl p-10 md:p-16 w-full relative overflow-hidden">
+                    <div class="absolute top-0 right-0 -mt-10 -mr-10 text-white opacity-5 pointer-events-none"><i class="fa-solid fa-lungs text-[20rem]"></i></div>
+                    <div class="relative z-10">
+                        <div class="bg-white/10 backdrop-blur-sm inline-block p-4 rounded-full text-indigo-300 mb-6 shadow-sm border border-white/20">
+                            <i class="fa-solid fa-book-open text-5xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-300 mb-2 uppercase tracking-widest">Maternal & Child Health Nursing</h3>
+                        <h1 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight drop-shadow-md">Meconium Aspiration Syndrome</h1>
+                        <div class="bg-white/10 backdrop-blur inline-block px-6 py-3 rounded-full mb-10 border border-white/20">
+                            <p class="text-lg text-white font-medium">At‑Risk Newborn · Pathophysiology · Management | <strong>Adele Pillitteri, 7e</strong></p>
+                        </div>
+                        <button onclick="unlockFirstSection()" class="bg-slate-600 hover:bg-slate-500 text-white font-black py-4 px-10 rounded-full shadow-xl transition-transform hover:scale-105 text-lg flex items-center mx-auto focus:outline-none">
+                            Begin Module <i class="fa-solid fa-arrow-right ml-3"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 1. DEFINITION & EPIDEMIOLOGY -->
+            <section id="definition" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-mas pb-3"><i class="fa-solid fa-book-open text-mas mr-4"></i> Definition & Epidemiology</h2>
+                    <p><strong>Meconium Aspiration Syndrome (MAS)</strong> – respiratory distress in a newborn caused by aspiration of meconium‑stained amniotic fluid into the lungs. It occurs in approximately 5–10% of deliveries with meconium‑stained fluid, and about 2–5% of those develop severe MAS. In the Philippines, meconium‑stained amniotic fluid is seen in 8–12% of deliveries, with MAS contributing to significant neonatal morbidity and mortality.</p>
+                    <div class="grid md:grid-cols-2 gap-5 mt-4">
+                        <div class="bg-slate-50 p-4 rounded-xl"><strong>📊 Incidence</strong><br><span class="reveal-text">Meconium passage occurs in 10–20% of all deliveries (higher in post‑term). MAS develops in 2–10% of meconium‑exposed infants. Mortality rate 5–15% with severe MAS.</span></div>
+                        <div class="bg-slate-50 p-4 rounded-xl"><strong>📌 Philippines Context</strong><br><span class="reveal-text">Meconium‑stained amniotic fluid is present in ~10% of births; MAS remains a leading cause of neonatal respiratory distress and admission to NICU in tertiary hospitals. Improved obstetric and neonatal care has reduced mortality.</span></div>
+                    </div>
+                    <canvas id="masChart" width="400" height="200" style="max-width:100%; margin-top:1rem;"></canvas>
+                    <div class="bg-amber-50 p-3 rounded-lg mt-4"><strong>⚠️ Key point:</strong> <span class="reveal-text">Not all meconium‑exposed infants develop MAS; intrapartum hypoxia and thick meconium increase risk.</span></div>
+                    <button onclick="openQuiz('definition')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- 2. PATHOPHYSIOLOGY & RISK FACTORS -->
+            <section id="pathophysiology" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-mas pb-3"><i class="fa-solid fa-notes-medical text-mas mr-4"></i> Pathophysiology & Risk Factors</h2>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div class="bg-red-50 p-4 rounded-xl"><strong>⚠️ Risk Factors</strong><br><span class="reveal-text">• Post‑term pregnancy (>42 weeks)<br>• Fetal distress / hypoxia<br>• Maternal hypertension, diabetes, preeclampsia<br>• Oligohydramnios<br>• Thick meconium (grade 2‑3)<br>• Prolonged labor<br>• Chorioamnionitis</span></div>
+                        <div class="bg-blue-50 p-4 rounded-xl"><strong>🧬 Pathophysiology</strong><br><span class="reveal-text">1. Fetal hypoxia → gasping → meconium passage.<br>2. Aspiration of meconium into airways → airway obstruction (ball‑valve effect, atelectasis, air trapping).<br>3. Chemical pneumonitis (inflammation).<br>4. Surfactant inactivation → RDS.<br>5. Persistent pulmonary hypertension (PPHN) due to vasoconstriction and remodeling.</span></div>
+                    </div>
+                    <div class="bg-yellow-50 p-3 rounded-lg mt-4"><strong>🔬 Pathophysiology cascade:</strong> <span class="reveal-text">Hypoxia → meconium passage → aspiration → airway obstruction → air trapping/pneumothorax → inflammation → surfactant dysfunction → V/Q mismatch → hypoxemia → PPHN.</span></div>
+                    <button onclick="openQuiz('pathophysiology')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- 3. CLINICAL MANIFESTATIONS & DIAGNOSIS -->
+            <section id="clinical" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-mas pb-3"><i class="fa-solid fa-stethoscope text-mas mr-4"></i> Clinical Manifestations & Diagnosis</h2>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>Respiratory distress at birth:</strong> <span class="reveal-text">Tachypnea (>60/min), grunting, nasal flaring, retractions, cyanosis, meconium‑stained skin/nails/umbilical cord.</span></li>
+                        <li><strong>Chest auscultation:</strong> <span class="reveal-text">Coarse crackles, rhonchi, decreased breath sounds (if pneumothorax).</span></li>
+                        <li><strong>Chest X‑ray findings:</strong> <span class="reveal-text">Patchy infiltrates, hyperinflation (barrel chest), flattening of diaphragm, possible pneumothorax or pneumomediastinum.</span></li>
+                        <li><strong>Blood gas:</strong> <span class="reveal-text">Hypoxemia, hypercapnia, metabolic acidosis (if severe).</span></li>
+                    </ul>
+                    <canvas id="xrayChart" width="500" height="200" style="max-width:100%; margin-top:1rem;"></canvas>
+                    <button onclick="openQuiz('clinical')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- 4. MANAGEMENT (INTRAPARTUM & NEONATAL) -->
+            <section id="management" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-mas pb-3"><i class="fa-solid fa-capsules text-mas mr-4"></i> Management (Intrapartum & Neonatal)</h2>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div><strong>👩‍⚕️ Intrapartum (Current NRP guidelines)</strong><br><span class="reveal-text">• Routine intrapartum suctioning of mouth/nose after delivery of head is NO longer recommended.<br>• If meconium‑stained fluid and the newborn is NOT vigorous (poor tone, apnea, bradycardia), intubate and suction meconium directly from trachea before positive‑pressure ventilation.<br>• If vigorous (strong cry, good tone, HR >100), no routine intubation; provide routine care.</span></div>
+                        <div><strong>🍼 Neonatal Management</strong><br><span class="reveal-text">• Respiratory support: oxygen, CPAP, mechanical ventilation (optimize oxygenation, prevent barotrauma).<br>• Surfactant replacement (helps inactived surfactant).<br>• Inhaled nitric oxide for persistent pulmonary hypertension (PPHN).<br>• Antibiotics (cover sepsis).<br>• Thermoregulation, glucose monitoring.<br>• Chest physiotherapy and suctioning as needed.</span></div>
+                    </div>
+                    <div class="bg-green-50 p-3 rounded-lg mt-4"><i class="fa-regular fa-lightbulb"></i> <strong>Key principle:</strong> “Vigorous meconium‑stained infants require no routine intubation; non‑vigorous infants need direct tracheal suction before ventilation.”</div>
+                    <button onclick="openQuiz('management')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- 5. NURSING CARE & COMPLICATIONS -->
+            <section id="nursing" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-mas pb-3"><i class="fa-solid fa-user-nurse text-mas mr-4"></i> Nursing Care & Complications</h2>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>Nursing interventions:</strong> <span class="reveal-text">• Monitor respiratory status (oxygen saturation, work of breathing).<br>• Maintain airway (positioning, suction prn).<br>• Administer oxygen/CPAP/mechanical ventilation as ordered.<br>• Provide warmth and fluids.<br>• Support parents emotionally; explain condition and treatment.<br>• Prevent infection (hand hygiene, aseptic technique).</span></li>
+                        <li><strong>Complications:</strong> <span class="reveal-text">• Pneumothorax (air leak syndrome)<br>• Persistent pulmonary hypertension (PPHN)<br>• Secondary infection (pneumonia)<br>• Chronic lung disease (bronchopulmonary dysplasia)<br>• Neurologic injury from hypoxia</span></li>
+                    </ul>
+                    <div class="bg-red-100 p-3 rounded-lg mt-4"><strong>🚨 Emergency signs:</strong> <span class="reveal-text">Sudden deterioration, asymmetrical breath sounds, hypotension, bradycardia → suspect pneumothorax or PPHN.</span></div>
+                    <button onclick="openQuiz('nursing')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- 6. LONG‑TERM OUTCOMES & PREVENTION -->
+            <section id="longterm" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-mas pb-3"><i class="fa-solid fa-children text-mas mr-4"></i> Long‑Term Outcomes & Prevention</h2>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div><strong>📅 Long‑Term Outcomes</strong><br><span class="reveal-text">• Most infants recover fully with no residual lung disease.<br>• Severe MAS may lead to chronic lung disease (BPD), recurrent wheezing, asthma, and increased risk of respiratory infections in early childhood.<br>• Neurologic sequelae possible if hypoxic‑ischemic injury occurred.</span></div>
+                        <div><strong>🛡️ Prevention</strong><br><span class="reveal-text">• Identify post‑term pregnancies and monitor fetal well‑being.<br>• Induction of labor at 41 weeks reduces meconium passage.<br>• Intrapartum fetal monitoring to detect distress.<br>• Avoid post‑term pregnancy >42 weeks.<br>• NRP guidelines: avoid routine intrapartum suctioning of non‑vigorous infants; use tracheal suction before PPV.</span></div>
+                    </div>
+                    <div class="bg-amber-50 p-3 rounded-lg mt-4"><strong>📌 Nursing role in prevention:</strong> <span class="reveal-text">Promote timely induction, fetal monitoring, and adherence to NRP protocols.</span></div>
+                    <button onclick="openQuiz('longterm')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Next</button>
+                </div>
+            </section>
+
+            <!-- 7. FLASHCARDS & MNEMONICS -->
+            <section id="flashcards" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-black text-slate-800 mb-4 border-b-2 border-mas pb-3"><i class="fa-solid fa-cards text-mas mr-4"></i> Flashcards & Mnemonics</h2>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-mas">Q: Define MAS</div><div class="flash-answer hidden mt-2">Respiratory distress from aspiration of meconium‑stained amniotic fluid</div></div>
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-mas">Q: Most important risk factor?</div><div class="flash-answer hidden mt-2">Post‑term pregnancy & fetal hypoxia</div></div>
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-mas">Q: NRP recommendation for non‑vigorous meconium‑stained newborn?</div><div class="flash-answer hidden mt-2">Intubate and suction trachea before PPV</div></div>
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-mas">Q: Common air leak complication?</div><div class="flash-answer hidden mt-2">Pneumothorax</div></div>
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-mas">Q: Treatment for PPHN in MAS?</div><div class="flash-answer hidden mt-2">Inhaled nitric oxide</div></div>
+                        <div class="flashcard p-4" onclick="toggleFlash(this)"><div class="font-bold text-mas">Q: Which infants need intubation for suction?</div><div class="flash-answer hidden mt-2">Non‑vigorous meconium‑stained newborns</div></div>
+                    </div>
+                    <div class="mt-6 bg-indigo-50 p-4 rounded-xl"><strong>🧠 Mnemonics</strong><br><span class="reveal-text">“M.A.S.” – Meconium, Aspiration, Syndrome.<br>“N.R.P.” – Non‑vigorous → intubate (suction), Resuscitate, Persistent pulmonary hypertension.<br>“C.A.R.E.” – Chest physiotherapy, Airway support, Respiratory monitoring, Early recognition.<br>“P.P.H.N.” – Persistent Pulmonary Hypertension of Newborn (common complication).</span></div>
+                    <button onclick="openQuiz('flashcards')" class="mt-6 w-full bg-slate-800 text-white font-black py-3 rounded-xl">Take Quiz → Unlock Final Exam</button>
+                </div>
+            </section>
+
+            <!-- FINAL EXAM SECTION -->
+            <section id="final_quiz_sec" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 text-center min-h-[60vh] flex flex-col justify-center items-center">
+                    <i class="fa-solid fa-graduation-cap text-8xl text-amber-500 mb-6"></i>
+                    <h2 class="text-4xl font-black text-slate-800 mb-4">Final 50‑Item Exam: Meconium Aspiration Syndrome</h2>
+                    <p class="text-lg text-slate-600 mb-8 max-w-2xl">Covers definition, pathophysiology, risk factors, clinical signs, diagnosis, management, nursing care, complications, long‑term outcomes, and mnemonics. Score ≥75% to pass.</p>
+                    <button onclick="openQuiz('final_quiz')" class="w-full max-w-md bg-slate-800 text-white font-black py-4 rounded-xl shadow-md text-xl">Start Final Exam</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- QUIZ MODAL -->
+    <div id="quiz-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4">
+        <div class="bg-white w-full max-w-3xl rounded-2xl shadow-2xl p-6 md:p-8 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeQuiz()" class="absolute top-4 right-4 text-slate-400 hover:text-red-500"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            <h2 id="quiz-title" class="text-3xl font-black text-slate-800 mb-2"></h2>
+            <div id="quiz-questions-container" class="space-y-4 mt-4"></div>
+            <button id="quiz-submit-btn" onclick="submitQuiz()" class="mt-8 w-full bg-mas text-white font-bold py-4 rounded-xl shadow-lg">Submit Answers</button>
+            <div id="quiz-result-container" class="hidden mt-6 p-4 rounded-xl bg-slate-100"></div>
+        </div>
+    </div>
+
+    <script>
+        let unlockedSections = ['home'];
+        // QUIZZES (10 questions each)
+        const quizzes = {
+            definition: { title: "Definition & Epidemiology", next: "pathophysiology", questions: [
+                { q: "MAS is defined as:", options: ["Respiratory distress from aspiration of meconium", "Infection of the lungs", "Pneumothorax", "Pulmonary edema"], ans: 0 },
+                { q: "Approximately what percentage of meconium‑stained infants develop severe MAS?", options: ["1-2%", "2-5%", "10-15%", "20-30%"], ans: 1 },
+                { q: "Meconium passage occurs in what percentage of all deliveries?", options: ["2-5%", "5-10%", "10-20%", "25-30%"], ans: 2 },
+                { q: "The most common condition associated with meconium passage is:", options: ["Post‑term pregnancy", "Preterm labor", "Multiple gestation", "Preeclampsia"], ans: 0 },
+                { q: "In the Philippines, meconium‑stained amniotic fluid is seen in approximately:", options: ["5%", "8-12%", "15%", "20%"], ans: 1 },
+                { q: "Mortality rate in severe MAS is approximately:", options: ["<1%", "5-15%", "20-30%", "50%"], ans: 1 },
+                { q: "Which of the following is NOT a risk factor for MAS?", options: ["Maternal diabetes", "Post‑term", "Prematurity", "Fetal distress"], ans: 2 },
+                { q: "Meconium passage is more common in:", options: ["Post‑term fetuses", "Preterm fetuses", "Growth‑restricted fetuses", "Anemic fetuses"], ans: 0 },
+                { q: "Thick meconium (grade 3) increases risk of MAS compared to thin meconium.", options: ["True", "False"], ans: 0 },
+                { q: "The incidence of MAS has decreased due to:", options: ["Improved obstetric and neonatal care, NRP guidelines", "More cesarean sections", "Increased use of antibiotics", "Earlier induction only"], ans: 0 }
+            ]},
+            pathophysiology: { title: "Pathophysiology & Risk Factors", next: "clinical", questions: [
+                { q: "The initial event leading to meconium passage is:", options: ["Fetal hypoxia", "Maternal fever", "Prematurity", "Polyhydramnios"], ans: 0 },
+                { q: "Which of the following is a direct effect of meconium aspiration?", options: ["Airway obstruction (ball‑valve)", "Surfactant production", "Bronchodilation", "Increased compliance"], ans: 0 },
+                { q: "Chemical pneumonitis in MAS is caused by:", options: ["Inflammatory response to meconium components", "Bacterial infection", "Viral infection", "Surfactant excess"], ans: 0 },
+                { q: "Persistent pulmonary hypertension (PPHN) in MAS results from:", options: ["Vasoconstriction and vascular remodeling", "Hypovolemia", "Cardiac failure", "Anemia"], ans: 0 },
+                { q: "The ball‑valve effect in MAS leads to:", options: ["Air trapping and hyperinflation", "Atelectasis only", "Pneumonia", "Pleural effusion"], ans: 0 },
+                { q: "Which of the following is NOT a risk factor for MAS?", options: ["Oligohydramnios", "Prolonged labor", "Chorioamnionitis", "Polyhydramnios"], ans: 3 },
+                { q: "Fetal hypoxia causes meconium passage through:", options: ["Parasympathetic stimulation", "Sympathetic inhibition", "Direct vagal reflex", "Maternal stress"], ans: 0 },
+                { q: "Surfactant inactivation in MAS leads to:", options: ["RDS‑like physiology", "Normal compliance", "Increased surfactant", "Atelectasis only"], ans: 0 },
+                { q: "Air leak syndromes (pneumothorax) in MAS occur due to:", options: ["Rupture of overdistended alveoli", "Tracheal suctioning", "Mechanical ventilation", "All of the above"], ans: 3 },
+                { q: "Which of the following is the most common predisposing factor for MAS?", options: ["Post‑term pregnancy", "Preterm birth", "Maternal anemia", "Breech presentation"], ans: 0 }
+            ]},
+            clinical: { title: "Clinical Manifestations & Diagnosis", next: "management", questions: [
+                { q: "A newborn with MAS typically presents with:", options: ["Tachypnea, grunting, retractions", "Apnea at birth", "Normal breathing", "Bradycardia only"], ans: 0 },
+                { q: "Which physical finding is characteristic of MAS?", options: ["Meconium staining of skin/nails", "Plethoric appearance", "Generalized edema", "Petechiae"], ans: 0 },
+                { q: "Chest X‑ray in MAS may show:", options: ["Patchy infiltrates, hyperinflation", "Clear lung fields", "Cardiomegaly", "Pleural effusion only"], ans: 0 },
+                { q: "Blood gas finding in MAS often includes:", options: ["Hypoxemia, hypercapnia", "Normal O2, low CO2", "Metabolic alkalosis", "Normal values"], ans: 0 },
+                { q: "Which of the following is NOT a typical sign of respiratory distress in MAS?", options: ["Bradypnea (<30/min)", "Nasal flaring", "Grunting", "Retractions"], ans: 0 },
+                { q: "Meconium is usually passed in utero after:", options: ["28 weeks", "34 weeks", "37 weeks", "40 weeks"], ans: 2 },
+                { q: "Auscultation of the chest in MAS may reveal:", options: ["Coarse crackles, rhonchi", "Clear breath sounds", "Stridor", "Wheezing only"], ans: 0 },
+                { q: "Chest X‑ray finding of ‘flattening of diaphragm’ indicates:", options: ["Hyperinflation", "Atelectasis", "Pneumothorax", "Normal"], ans: 0 },
+                { q: "The severity of MAS is classified by:", options: ["Clinical score, oxygenation index", "Only X‑ray findings", "Only blood gas", "Gestational age"], ans: 0 },
+                { q: "A newborn with MAS who suddenly deteriorates with unequal breath sounds should be suspected of:", options: ["Pneumothorax", "PPHN", "Sepsis", "IVH"], ans: 0 }
+            ]},
+            management: { title: "Management (Intrapartum & Neonatal)", next: "nursing", questions: [
+                { q: "According to current NRP, a vigorous meconium‑stained newborn should:", options: ["Receive routine care, no routine intubation", "Be intubated and suctioned immediately", "Have gastric lavage", "Receive prophylactic antibiotics"], ans: 0 },
+                { q: "A non‑vigorous meconium‑stained newborn requires:", options: ["Intubation and tracheal suction before PPV", "Stimulation and free‑flow oxygen", "No intervention", "Immediate chest physiotherapy"], ans: 0 },
+                { q: "The goal of surfactant replacement in MAS is:", options: ["Replace inactivated surfactant", "Prevent infection", "Increase airway resistance", "Reduce inflammation only"], ans: 0 },
+                { q: "Inhaled nitric oxide is used to treat:", options: ["Persistent pulmonary hypertension (PPHN)", "Pneumothorax", "Sepsis", "Hypoglycemia"], ans: 0 },
+                { q: "Which mode of ventilation is often used in severe MAS to allow permissive hypercapnia?", options: ["High‑frequency ventilation", "Conventional only", "CPAP only", "None"], ans: 0 },
+                { q: "Prophylactic intrapartum suctioning (oropharyngeal after head delivery) is:", options: ["No longer recommended by NRP", "Mandatory", "Only for thick meconium", "Only for post‑term"], ans: 0 },
+                { q: "A non‑vigorous newborn with meconium‑stained fluid should have the first step:", options: ["Place under radiant warmer and intubate", "Dry and stimulate", "Give free‑flow oxygen", "Start chest compressions"], ans: 0 },
+                { q: "Antibiotics are given in MAS to:", options: ["Cover possible infection (sepsis)", "Treat meconium", "Prevent pneumothorax", "Improve surfactant"], ans: 0 },
+                { q: "Oxygen saturation target in MAS is typically:", options: ["90‑95%", "100%", "85‑89%", ">97%"], ans: 0 },
+                { q: "Surfactant administration in MAS should be given:", options: ["Via endotracheal tube", "Orally", "Intramuscularly", "Intravenously"], ans: 0 }
+            ]},
+            nursing: { title: "Nursing Care & Complications", next: "longterm", questions: [
+                { q: "The priority nursing assessment for a newborn with MAS is:", options: ["Respiratory status and oxygen saturation", "Blood glucose", "Temperature", "Feeding tolerance"], ans: 0 },
+                { q: "Which complication is most likely to occur suddenly in MAS?", options: ["Pneumothorax", "Anemia", "Hyperbilirubinemia", "Hypoglycemia"], ans: 0 },
+                { q: "Signs of pneumothorax include:", options: ["Sudden deterioration, asymmetrical breath sounds, hypotension", "Improved oxygenation", "Bradycardia only", "Seizures"], ans: 0 },
+                { q: "Nursing intervention to prevent infection in MAS includes:", options: ["Strict hand hygiene, aseptic technique", "Delaying feeds", "No special care", "Routine antibiotics"], ans: 0 },
+                { q: "Emotional support for parents of an infant with MAS should include:", options: ["Explain condition, encourage bonding, provide updates", "Avoid discussing prognosis", "Limit visitation", "Only physical care"], ans: 0 },
+                { q: "Chest physiotherapy in MAS is used to:", options: ["Loosen secretions, improve airway clearance", "Prevent pneumothorax", "Treat PPHN", "Reduce fever"], ans: 0 },
+                { q: "A newborn with MAS requiring mechanical ventilation is at risk for:", options: ["Bronchopulmonary dysplasia (BPD)", "Sepsis only", "Anemia only", "None"], ans: 0 },
+                { q: "The nurse should monitor for signs of PPHN including:", options: ["Hypoxemia unresponsive to oxygen, pre‑ductal/post‑ductal SpO₂ difference", "Bradycardia, hypotension", "Seizures", "Hyperbilirubinemia"], ans: 0 },
+                { q: "Which of the following is NOT a nursing intervention for MAS?", options: ["Encourage immediate bottle feeding", "Maintain thermoregulation", "Administer oxygen as ordered", "Monitor for air leak"], ans: 0 },
+                { q: "The nurse should document the color of meconium‑stained fluid as:", options: ["Thin, moderate, thick", "Green only", "Brown only", "Clear"], ans: 0 }
+            ]},
+            longterm: { title: "Long‑Term Outcomes & Prevention", next: "flashcards", questions: [
+                { q: "Most infants with MAS recover with:", options: ["No residual lung disease", "Chronic lung disease always", "Neurologic deficits always", "Hearing loss"], ans: 0 },
+                { q: "Severe MAS is associated with increased risk of:", options: ["Childhood asthma, recurrent wheezing, BPD", "Obesity", "Autism", "Dental caries"], ans: 0 },
+                { q: "Prevention of post‑term pregnancy is important because:", options: ["Post‑term increases meconium passage risk", "Post‑term reduces risk", "No effect", "Only affects maternal health"], ans: 0 },
+                { q: "To prevent MAS, induction of labor is recommended at:", options: ["41 weeks", "40 weeks", "42 weeks", "39 weeks"], ans: 0 },
+                { q: "Antenatal interventions to prevent MAS include:", options: ["Fetal monitoring to detect hypoxia, treat post‑term", "Corticosteroids", "Magnesium sulfate", "Antibiotics"], ans: 0 },
+                { q: "Neurologic injury in MAS is usually due to:", options: ["Hypoxic‑ischemic event", "Direct meconium toxicity", "Infection", "Medication"], ans: 0 },
+                { q: "Long‑term follow‑up for a child with severe MAS should include:", options: ["Pulmonary function tests, asthma management, neurodevelopmental assessment", "Only growth monitoring", "Only hearing tests", "Only vision tests"], ans: 0 },
+                { q: "Which of the following reduces the risk of meconium passage?", options: ["Avoiding post‑term pregnancy", "Planned C‑section at 38 weeks", "Maternal hydration", "None"], ans: 0 },
+                { q: "The NRP guidelines for meconium‑stained newborns have reduced the incidence of:", options: ["MAS and the need for intubation", "Preterm birth", "Maternal mortality", "Cesarean sections"], ans: 0 },
+                { q: "A child with history of MAS and subsequent BPD should receive:", options: ["RSV prophylaxis (palivizumab) if indicated", "No special care", "Immunosuppressants", "Growth hormone"], ans: 0 }
+            ]},
+            flashcards: { title: "Flashcards & Mnemonics", next: "final_quiz_sec", questions: [
+                { q: "The mnemonic for non‑vigorous meconium‑stained newborn action is:", options: ["Intubate before PPV", "C.A.R.E.", "M.A.S.", "P.P.H.N."], ans: 0 },
+                { q: "The mnemonic for complications of MAS includes:", options: ["Pneumothorax, PPHN, BPD", "R.I.N.E.", "F.O.L.", "P.S.M."], ans: 0 },
+                { q: "In the mnemonic 'M.A.S.', 'S' stands for:", options: ["Syndrome", "Suction", "Surfactant", "Sepsis"], ans: 0 },
+                { q: "Which mnemonic is used for nursing care of MAS?", options: ["C.A.R.E.", "M.A.S.", "N.R.P.", "P.P.H.N."], ans: 0 },
+                { q: "In C.A.R.E., 'R' stands for:", options: ["Respiratory monitoring", "Resuscitation", "Rehabilitation", "Reassurance"], ans: 0 },
+                { q: "The mnemonic for persistent pulmonary hypertension is:", options: ["P.P.H.N.", "M.A.S.", "C.A.R.E.", "N.R.P."], ans: 0 },
+                { q: "A flashcard for 'NRP recommendation for vigorous newborn' answer is:", options: ["Routine care, no intubation", "Intubation and suction", "Gastric lavage", "Antibiotics"], ans: 0 },
+                { q: "A flashcard for 'NRP recommendation for non‑vigorous newborn' answer is:", options: ["Intubate and suction trachea before PPV", "Give oxygen only", "Stimulation only", "Chest compressions"], ans: 0 },
+                { q: "Which mnemonic helps recall management of MAS?", options: ["C.A.R.E.", "M.A.S.", "P.P.H.N.", "A.B.C."], ans: 0 },
+                { q: "The flashcard for 'most common air leak' answer is:", options: ["Pneumothorax", "Pneumomediastinum", "Pneumopericardium", "None"], ans: 0 }
+            ]}
+        };
+        // Build final 50-item exam
+        let finalQ = [];
+        for(let sec of ['definition','pathophysiology','clinical','management','nursing','longterm','flashcards']) {
+            finalQ.push(...quizzes[sec].questions.slice(0,7));
+        }
+        while(finalQ.length < 50) finalQ.push({ q: "The single most important intervention to reduce MAS morbidity is:", options: ["Non‑vigorous infant tracheal suction before PPV (NRP)", "Routine intrapartum suctioning", "Early C‑section", "Maternal oxygen"], ans: 0 });
+        quizzes.final_quiz = { title: "Final 50‑Item Exam: Meconium Aspiration Syndrome", next: null, questions: finalQ };
+
+        let currentQuiz = null;
+        let masChart = null, xrayChart = null;
+
+        function initCharts() {
+            const ctx1 = document.getElementById('masChart')?.getContext('2d');
+            if(ctx1 && !masChart) {
+                masChart = new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Meconium‑stained deliveries', 'Develop MAS', 'Severe MAS', 'Mortality (severe)'],
+                        datasets: [{ label: 'Percentage (%)', data: [15, 5, 2, 8], backgroundColor: '#4f46e5', borderRadius: 6 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } } }
+                });
+            }
+            const ctx2 = document.getElementById('xrayChart')?.getContext('2d');
+            if(ctx2 && !xrayChart) {
+                xrayChart = new Chart(ctx2, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Patchy infiltrates', 'Hyperinflation', 'Flattened diaphragm', 'Pneumothorax', 'Atelectasis'],
+                        datasets: [{ label: 'Relative frequency in MAS', data: [90, 80, 70, 20, 40], backgroundColor: 'rgba(79,70,229,0.2)', borderColor: '#4f46e5' }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'top' } } }
+                });
+            }
+        }
+
+        function toggleFlash(el) { const ans = el.querySelector('.flash-answer'); if(ans) ans.classList.toggle('hidden'); }
+        function unlockFirstSection() { if(!unlockedSections.includes('definition')) { unlockedSections.push('definition'); updateSidebarUI(); } showSection('definition'); }
+        function showSection(sectionId) {
+            if (!unlockedSections.includes(sectionId) && sectionId !== 'home') { alert("Complete the Active Recall Quiz at the bottom of the previous section to unlock."); return; }
+            document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(sectionId)?.classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-mas-light','text-mas-dark','border-r-4','border-mas-dark'));
+            const activeBtn = document.getElementById('btn-'+sectionId);
+            if(activeBtn) activeBtn.classList.add('bg-mas-light','text-mas-dark','border-r-4','border-mas-dark');
+            if(window.innerWidth < 768) document.getElementById('sidebar').classList.add('hidden');
+            if((sectionId === 'definition' || sectionId === 'clinical') && !masChart) setTimeout(initCharts, 50);
+        }
+        function updateSidebarUI() {
+            const sections = ['home','definition','pathophysiology','clinical','management','nursing','longterm','flashcards','final_quiz_sec'];
+            sections.forEach(sec => {
+                const btn = document.getElementById('btn-'+sec);
+                if(!btn) return;
+                const lock = btn.querySelector('.fa-lock'), icon = btn.querySelector('.nav-icon');
+                if(unlockedSections.includes(sec) || sec==='home') { btn.classList.remove('locked-section'); if(lock) lock.classList.add('hidden'); if(icon) icon.classList.remove('hidden'); }
+                else { btn.classList.add('locked-section'); if(lock) lock.classList.remove('hidden'); if(icon) icon.classList.add('hidden'); }
+            });
+        }
+        function openQuiz(sectionId) { currentQuiz = sectionId; const qd = quizzes[sectionId]; if(!qd) return; document.getElementById('quiz-title').innerHTML = qd.title; const container = document.getElementById('quiz-questions-container'); container.innerHTML = ''; qd.questions.forEach((q, idx) => { let html = `<div class="bg-slate-50 p-4 rounded-xl mb-4"><p class="font-bold mb-3">${idx+1}. ${q.q}</p><div class="space-y-2">`; q.options.forEach((opt,oi) => { html += `<label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-white cursor-pointer"><input type="radio" name="q${idx}" value="${oi}" class="form-radio text-mas"><span>${opt}</span></label>`; }); html += `</div><div class="feedback-${idx} text-sm mt-2 hidden"></div></div>`; container.innerHTML += html; }); document.getElementById('quiz-submit-btn').classList.remove('hidden'); document.getElementById('quiz-result-container').classList.add('hidden'); document.getElementById('quiz-modal').classList.remove('hidden'); }
+        function closeQuiz() { document.getElementById('quiz-modal').classList.add('hidden'); }
+        function submitQuiz() {
+            const qd = quizzes[currentQuiz];
+            if(!qd) return;
+            let score = 0;
+            for(let i=0; i<qd.questions.length; i++) {
+                const sel = document.querySelector(`input[name="q${i}"]:checked`);
+                if(sel && parseInt(sel.value)===qd.questions[i].ans) score++;
+                const fbDiv = document.querySelector(`.feedback-${i}`);
+                if(fbDiv){
+                    fbDiv.classList.remove('hidden');
+                    const correctTxt = qd.questions[i].options[qd.questions[i].ans];
+                    if(sel && parseInt(sel.value)===qd.questions[i].ans) { fbDiv.innerHTML='<span class="text-green-700">✓ Correct</span>'; fbDiv.parentElement?.classList.add('quiz-feedback-correct'); }
+                    else { const selectedTxt = sel? qd.questions[i].options[parseInt(sel.value)]:"No answer"; fbDiv.innerHTML=`<span class="text-red-700">✗ Incorrect. Correct: ${correctTxt}. You answered: ${selectedTxt}</span>`; fbDiv.parentElement?.classList.add('quiz-feedback-wrong'); }
+                }
+            }
+            let percent = (score/qd.questions.length)*100;
+            let resultDiv = document.getElementById('quiz-result-container');
+            document.getElementById('quiz-submit-btn').classList.add('hidden');
+            resultDiv.classList.remove('hidden');
+            if(percent>=75){
+                if(currentQuiz==='final_quiz'){ resultDiv.innerHTML=`<div class="text-green-600 text-4xl text-center">🎉 Excellent! Score ${score}/${qd.questions.length} (${percent}%)<br>You mastered Meconium Aspiration Syndrome</div><button onclick="closeQuiz()" class="mt-4 bg-mas text-white px-6 py-2 rounded-xl">Close</button>`; return; }
+                if(quizzes[currentQuiz].next && !unlockedSections.includes(quizzes[currentQuiz].next)) unlockedSections.push(quizzes[currentQuiz].next);
+                if(quizzes[currentQuiz].next === 'flashcards' && !unlockedSections.includes('final_quiz_sec')) unlockedSections.push('final_quiz_sec');
+                updateSidebarUI();
+                resultDiv.innerHTML=`<div class="text-green-600 text-3xl text-center">✅ Passed! (${score}/${qd.questions.length})</div><button onclick="closeQuiz(); showSection('${quizzes[currentQuiz].next}')" class="mt-4 bg-green-600 text-white px-6 py-2 rounded-xl">Unlock Next Section</button>`;
+            } else { resultDiv.innerHTML=`<div class="text-red-600 text-3xl text-center">❌ Failed: ${score}/${qd.questions.length} (${percent}%)<br>Need 75%</div><button onclick="openQuiz('${currentQuiz}')" class="mt-4 bg-slate-600 text-white px-6 py-2 rounded-xl">Try Again</button>`; }
+        }
+        function toggleRecallMode() { const active = !document.body.classList.contains('recall-mode'); const toggle=document.getElementById('recall-toggle'),knob=document.getElementById('recall-knob'); if(active){ document.body.classList.add('recall-mode'); toggle.classList.add('bg-mas-dark'); knob.classList.add('translate-x-6'); } else { document.body.classList.remove('recall-mode'); toggle.classList.remove('bg-mas-dark'); knob.classList.remove('translate-x-6'); } }
+        function toggleMobileMenu() { const s=document.getElementById('sidebar'); if(s.classList.contains('hidden')) s.classList.remove('hidden','flex','absolute','h-full','z-50'); else s.classList.add('hidden'); }
+        document.addEventListener('DOMContentLoaded', () => { updateSidebarUI(); document.querySelectorAll('.reveal-text').forEach(el => el.addEventListener('click', function(){ if(document.body.classList.contains('recall-mode')) this.classList.toggle('revealed'); })); });
+    </script>
+</body>
+</html>
